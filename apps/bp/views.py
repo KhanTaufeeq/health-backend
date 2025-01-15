@@ -30,7 +30,7 @@ def add_bp(request):
 
 def list_bp(request):
   if request.method == 'GET':
-    items = BP.objects.order_by('created_at')
+    items = BP.objects.order_by('-created_at')
     data = list(items.values('systolic','diastolic','timing', 'created_at'))
     return JsonResponse(data, safe=False)
   else:
