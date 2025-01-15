@@ -28,7 +28,7 @@ def add_sugar(request):
 
 def list_data(request):
   if request.method == 'GET':
-    items = Diabetes.objects.order_by('-created_at')
+    items = Diabetes.objects.order_by('created_at')
     data = list(items.values('id', 'fasting_sugar', 'random_sugar', 'created_at'))
     return JsonResponse(data, safe=False)
   else:
