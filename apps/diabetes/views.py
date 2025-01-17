@@ -33,3 +33,38 @@ def list_data(request):
     return JsonResponse(data, safe=False)
   else:
     return JsonResponse({'error': "Invalid request method"}, status = 405)
+  
+
+  
+@csrf_exempt
+def delete_sugar(request, sugar_id):
+  if request.method == 'DELETE':
+    data = Diabetes.objects.get(id = sugar_id)
+    data.delete()
+    items = Diabetes.objects.order_by('-created_at')
+    ordered_items = list(items.values('id', 'fasting_sugar', 'random_sugar', 'created_at'))
+    return JsonResponse(ordered_items, safe=False)
+  else:
+    return JsonResponse({"error" : "Invalid request method"}, status = 405) 
+  
+
+@csrf_exempt
+def update_sugar(request, sugar_id):
+  if request.method == 'PUT':
+    try:
+      data = json.loads(request.body)
+      fasting_data = data.get('fasting_sugar')
+      random_data = data.get('random_sugar') 
+
+      sugar_object = Diabetes.objects.get(id = sugar_id) 
+
+      if fasting_data:
+        sugar_object.fasting_sugar = fasting_data 
+      if random_data:
+        sugar_object.random_sugar = random_data 
+      sugar_object.save()
+      return JsonResponse({"message" : "Diabetes data has been updated successfully"}, status = 200) 
+    except sugar_object.DoesNotExist:
+      JsonResponse({"error" : "There is no such Diabetes object"}, status = 404)
+  else:
+    return JsonResponse({"error" : "Invalid request method"}, status = 405)

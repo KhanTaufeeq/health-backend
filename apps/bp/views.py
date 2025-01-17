@@ -31,7 +31,43 @@ def add_bp(request):
 def list_bp(request):
   if request.method == 'GET':
     items = BP.objects.order_by('-created_at')
-    data = list(items.values('systolic','diastolic','timing', 'created_at'))
+    data = list(items.values('id','systolic','diastolic','timing', 'created_at'))
     return JsonResponse(data, safe=False)
   else:
     return JsonResponse({"error": "Invalid request method"}, status = 405)
+  
+
+@csrf_exempt
+def delete_bp(request, bp_id):
+  if request.method == 'DELETE':
+    data = BP.objects.get(id = bp_id)
+    data.delete()
+    return JsonResponse({"message": "BP has been deleted successfully"}, status = 200) 
+  else:
+    return JsonResponse({"error" : "Invalid request method"}, status = 405)
+  
+
+@csrf_exempt
+def update_bp(request, bp_id):
+  if request.method == 'PUT':
+    try:
+      data = json.loads(request.body)
+      systolic_data = data.get('systolic')
+      diastolic_data = data.get('diastolic')
+      timing_data  = data.get('timing')
+
+      bp_data = BP.objects.get(id = bp_id)
+
+      if systolic_data:
+        bp_data.systolic = systolic_data
+      if diastolic_data:
+        bp_data.diastolic = diastolic_data
+      if timing_data:
+        bp_data.timing = timing_data
+      bp_data.save()
+      return JsonResponse({'message': "BP object has been updated successfully"}, status = 200) 
+    except bp_data.DoesNotExist:
+      return JsonResponse({"error": "BP object does not found"}, status = 404)
+  else:
+    return JsonResponse({"error": "Invalid request method"}, status = 405)
+  
